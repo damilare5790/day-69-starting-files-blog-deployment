@@ -1,5 +1,5 @@
 from datetime import date
-from flask import Flask, abort, render_template, redirect, url_for, flash
+from flask import Flask, abort, render_template, redirect, url_for, flash, request
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
@@ -11,6 +11,8 @@ from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 # Import your forms from the forms.py
 from forms import CreatePostForm, CommentForm, LoginForm, RegisterForm
+import os
+import yagmail
 
 '''
 Make sure the required packages are installed: 
@@ -24,6 +26,9 @@ pip3 install -r requirements.txt
 
 This will install the packages from the requirements.txt for this project.
 '''
+
+MAIL_ADDRESS = os.environ.get("EMAIL_KEY")
+MAIL_PASSWORD = os.environ.get("PASSWORD_KEY")
 
 
 def admin_only(f):
@@ -48,7 +53,7 @@ def only_commenter(function):
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = '8BYkEfBA6O6donzWlSihBXox7C0sKR6b'
+app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
 ckeditor = CKEditor(app)
 Bootstrap5(app)
 
@@ -67,7 +72,7 @@ class Base(DeclarativeBase):
     pass
 
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///posts.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DB_URI")
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -275,10 +280,20 @@ def about():
     return render_template("about.html", current_user=current_user)
 
 
-@app.route("/contact")
+@app.route("/contact", methods=["POST", "GET"])
 def contact():
-    return render_template("contact.html", current_user=current_user)
+    if request.method == "POST":
+        contact_form = request.form
+        send_email(contact_form["name"], contact_form["email"], contact_form["phone"], contact_form["message"])
+        return render_template("contact.html", msg_sent=True)
+    return render_template("contact.html", msg_sent=False)
+
+
+def send_email(name, email, phone, message):
+    email_message = f"\nName: {name}\nEmail: {email}\nPhone: {phone}\nMessage:{message}"
+    yag = yagmail.SMTP(user=MAIL_ADDRESS, password=MAIL_PASSWORD)
+    yag.send(to=MAIL_ADDRESS, subject="New Message from BLOG-POST contact", contents=email_message)
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5002)
+    app.run(debug=False, port=5002)
