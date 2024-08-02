@@ -1,7 +1,15 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
-from wtforms.validators import DataRequired, URL, Length, Email
+from wtforms.validators import DataRequired, URL, Length, ValidationError
 from flask_ckeditor import CKEditorField
+from email_validator import validate_email, EmailNotValidError
+
+
+def validate_email_address(field):
+    try:
+        validate_email(field.data)
+    except EmailNotValidError:
+        raise ValidationError('Invalid email address.')
 
 
 # WTForm for creating a blog post
@@ -16,8 +24,8 @@ class CreatePostForm(FlaskForm):
 # TODO: Create a RegisterForm to register new users
 class RegisterForm(FlaskForm):
     username = StringField("Name", validators=[DataRequired(), Length(5, message="Your Username should be a min of "
-                                                                                     "5 character ")])
-    email = StringField('Email', validators=[DataRequired(), Email("Please enter a Valid Email address")])
+                                                                                 "5 character ")])
+    email = StringField('Email', validators=[DataRequired(), validate_email_address])
     password = PasswordField('Password',
                              validators=[DataRequired(), Length(8, message="Your Username should be a min of "
                                                                            "5 character ")])
@@ -26,7 +34,7 @@ class RegisterForm(FlaskForm):
 
 # TODO: Create a LoginForm to login existing users
 class LoginForm(FlaskForm):
-    email = StringField('Email', validators=[DataRequired(), Email("Please enter a Valid Email address")])
+    email = StringField('Email', validators=[DataRequired(), validate_email_address])
     password = PasswordField('Password',
                              validators=[DataRequired(), Length(8, message="Your Username should be a min of "
                                                                            "5 character ")])
