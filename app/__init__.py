@@ -5,6 +5,7 @@ from flask_gravatar import Gravatar
 from flask_login import LoginManager
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate  
+from .routes import auth, main, blog
 
 from .config import Config
 
@@ -25,7 +26,8 @@ def create_app(config_class=Config):
     Bootstrap5(app)
     gravatar.init_app(app)
 
-    from .routes import auth, main, blog
+    login_manager = LoginManager(app)
+    login_manager.login_view = "auth.login"
     app.register_blueprint(auth.bp)
     app.register_blueprint(main.bp)
     app.register_blueprint(blog.bp)
