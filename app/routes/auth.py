@@ -5,6 +5,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from app import db
 from app.models import User
 from app.forms import RegisterForm, LoginForm
+from flask import Blueprint, render_template, redirect, url_for, flash, request
+from urllib.parse import urlparse, urljoin
 
 bp = Blueprint('auth', __name__)
 
@@ -31,12 +33,19 @@ def register():
             )
             db.session.add(register_user)
             db.session.commit()
-            login_user(register_user)
-            return redirect(url_for("main.get_all_posts"))
+            return redirect(url_for("auth.login"))
     return render_template("register.html", form=form, current_user=current_user)
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and ref_url.netloc == test_url.netloc
 
 @bp.route('/login', methods=["GET", "POST"])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('main.get_all_posts'))
+    
     user_form = LoginForm()
     if user_form.validate_on_submit():
         email = user_form.email.data
@@ -50,7 +59,10 @@ def login():
             return redirect(url_for("auth.login"))
         else:
             login_user(user_data)
-            return redirect(url_for("main.get_all_posts"))
+            next_page = request.args.get('next')
+            if not next_page or not is_safe_url(next_page):
+                next_page = url_for('main.get_all_posts')
+            return redirect(next_page)
     return render_template("login.html", form=user_form, current_user=current_user)
 
 @bp.route('/logout')

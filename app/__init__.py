@@ -29,6 +29,10 @@ def create_app(config_class):
     def load_user(user_id):
         return User.query.get(int(user_id))
 
+    # Set the login view and message
+    login_manager.login_view = 'auth.register'
+    login_manager.login_message = 'Please log in to access this page.'
+
     with app.app_context():
         from .routes import auth, main, blog
         app.register_blueprint(auth.bp)
