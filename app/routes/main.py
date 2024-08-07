@@ -2,8 +2,8 @@ from flask import Blueprint, render_template, request
 from flask_login import current_user
 from datetime import date
 
-from ..models import BlogPost
-from ..utils import send_email
+from app.models import BlogPost
+from app.utils import send_email
 
 bp = Blueprint('main', __name__)
 

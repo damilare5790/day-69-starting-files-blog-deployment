@@ -2,10 +2,10 @@ from flask import Blueprint, render_template, redirect, url_for, abort
 from flask_login import login_required, current_user
 from datetime import date
 
-from .. import db
-from ..models import BlogPost, Comment
-from ..forms import CreatePostForm, CommentForm
-from ..utils import admin_only, only_commenter
+from app import db
+from app.models import BlogPost, Comment
+from app.forms import CreatePostForm, CommentForm
+from app.utils import admin_only, only_commenter
 
 bp = Blueprint('blog', __name__)
 

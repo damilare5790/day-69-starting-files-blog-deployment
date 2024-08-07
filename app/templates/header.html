@@ -62,7 +62,7 @@
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('get_all_posts') }}"
+                href="{{ url_for('main.get_all_posts') }}"
                 >Home</a
               >
             </li>
@@ -71,14 +71,14 @@
               <li class="nav-item">
                 <a
                   class="nav-link px-lg-3 py-3 py-lg-4"
-                  href="{{ url_for('login') }}"
+                  href="{{ url_for('auth.login') }}"
                   >Login</a
                 >
               </li>
               <li class="nav-item">
                 <a
                   class="nav-link px-lg-3 py-3 py-lg-4"
-                  href="{{ url_for('register') }}"
+                  href="{{ url_for('auth.register') }}"
                   >Register</a
                 >
               </li>
@@ -86,21 +86,21 @@
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('logout') }}"
+                href="{{ url_for('auth.logout') }}"
                 >Log Out</a
               >
             </li>
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('about') }}"
+                href="{{ url_for('main.about') }}"
                 >About</a
               >
             </li>
             <li class="nav-item">
               <a
                 class="nav-link px-lg-3 py-3 py-lg-4"
-                href="{{ url_for('contact') }}"
+                href="{{ url_for('main.contact') }}"
                 >Contact</a
               >
             </li>
