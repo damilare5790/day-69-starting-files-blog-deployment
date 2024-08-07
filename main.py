@@ -13,6 +13,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from forms import CreatePostForm, CommentForm, LoginForm, RegisterForm
 import os
 import yagmail
+from urllib.parse import urlparse, urljoin
 
 '''
 Make sure the required packages are installed: 
@@ -60,6 +61,8 @@ Bootstrap5(app)
 # TODO: Configure Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
+login_manager.login_view = "login"
+login_manager.login_message = "Please login to view this post"
 
 
 @login_manager.user_loader
@@ -172,9 +175,17 @@ def login():
             return redirect(url_for("login"))
         else:
             login_user(user_data)
-            return redirect(url_for("get_all_posts"))
-
+            next_page = request.args.get("next")
+            if not next_page or not url_check(next_page):
+                next_page = url_for("get_all_posts")
+            return redirect(next_page)
     return render_template("login.html", form=user_form, current_user=current_user)
+
+
+def url_check(target):
+    host = urlparse(request.host_url)
+    test = urlparse(urljoin(request.host_url, target))
+    return test.scheme in ("http", "https") and host.netloc == test.netloc
 
 
 @app.route('/logout')
@@ -296,4 +307,4 @@ def send_email(name, email, phone, message):
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5002)
+    app.run(debug=True, port=5002)
